@@ -1,0 +1,6 @@
+bongolava_job.settings:
+  title: 'Bongolava Jobs'
+  description: 'API settings and database install'
+  route_name: bongolava_job.settings
+  parent: system.admin_config_system
+  weight: 50

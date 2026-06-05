@@ -1,0 +1,232 @@
+<?php
+
+/**
+ * @file
+ * Database schema for Bongolava Jobs API.
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function bongolava_job_schema() {
+  $schema = [];
+
+  $schema['bongolava_job_user_meta'] = [
+    'description' => 'Extended user fields for Bongolava Jobs.',
+    'fields' => [
+      'uid' => ['type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE],
+      'phone' => ['type' => 'varchar', 'length' => 32, 'not null' => FALSE],
+      'status' => ['type' => 'varchar', 'length' => 16, 'not null' => TRUE, 'default' => 'active'],
+      'role' => ['type' => 'varchar', 'length' => 16, 'not null' => TRUE, 'default' => 'candidate'],
+      'email_verified_at' => ['type' => 'int', 'not null' => FALSE],
+      'created' => ['type' => 'int', 'not null' => TRUE, 'default' => 0],
+      'updated' => ['type' => 'int', 'not null' => TRUE, 'default' => 0],
+    ],
+    'primary key' => ['uid'],
+  ];
+
+  $schema['bongolava_job_token'] = [
+    'description' => 'API bearer tokens.',
+    'fields' => [
+      'id' => ['type' => 'serial', 'unsigned' => TRUE, 'not null' => TRUE],
+      'uid' => ['type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE],
+      'token_hash' => ['type' => 'varchar', 'length' => 128, 'not null' => TRUE],
+      'created' => ['type' => 'int', 'not null' => TRUE, 'default' => 0],
+      'expires' => ['type' => 'int', 'not null' => FALSE],
+    ],
+    'primary key' => ['id'],
+    'indexes' => [
+      'token_hash' => ['token_hash'],
+      'uid' => ['uid'],
+    ],
+  ];
+
+  $schema['bongolava_job_candidate_profile'] = [
+    'description' => 'Candidate profiles.',
+    'fields' => [
+      'id' => ['type' => 'serial', 'unsigned' => TRUE, 'not null' => TRUE],
+      'user_id' => ['type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE],
+      'first_name' => ['type' => 'varchar', 'length' => 128, 'not null' => TRUE, 'default' => ''],
+      'last_name' => ['type' => 'varchar', 'length' => 128, 'not null' => TRUE, 'default' => ''],
+      'age' => ['type' => 'int', 'unsigned' => TRUE, 'not null' => FALSE],
+      'gender' => ['type' => 'varchar', 'length' => 16, 'not null' => FALSE],
+      'location' => ['type' => 'varchar', 'length' => 255, 'not null' => FALSE],
+      'address' => ['type' => 'text', 'not null' => FALSE],
+      'job_target' => ['type' => 'varchar', 'length' => 255, 'not null' => FALSE],
+      'skills' => ['type' => 'text', 'not null' => FALSE],
+      'experiences' => ['type' => 'text', 'not null' => FALSE],
+      'educations' => ['type' => 'text', 'not null' => FALSE],
+      'certifications' => ['type' => 'text', 'not null' => FALSE],
+      'languages' => ['type' => 'text', 'not null' => FALSE],
+      'experience_level' => ['type' => 'varchar', 'length' => 64, 'not null' => FALSE],
+      'portfolio' => ['type' => 'varchar', 'length' => 512, 'not null' => FALSE],
+      'linkedin' => ['type' => 'varchar', 'length' => 512, 'not null' => FALSE],
+      'github' => ['type' => 'varchar', 'length' => 512, 'not null' => FALSE],
+      'cv_path' => ['type' => 'varchar', 'length' => 512, 'not null' => FALSE],
+      'photo_path' => ['type' => 'varchar', 'length' => 512, 'not null' => FALSE],
+      'phone' => ['type' => 'varchar', 'length' => 32, 'not null' => FALSE],
+      'email' => ['type' => 'varchar', 'length' => 255, 'not null' => FALSE],
+      'created' => ['type' => 'int', 'not null' => TRUE, 'default' => 0],
+      'updated' => ['type' => 'int', 'not null' => TRUE, 'default' => 0],
+    ],
+    'primary key' => ['id'],
+    'unique keys' => ['user_id' => ['user_id']],
+  ];
+
+  $schema['bongolava_job_recruiter_profile'] = [
+    'description' => 'Recruiter profiles.',
+    'fields' => [
+      'id' => ['type' => 'serial', 'unsigned' => TRUE, 'not null' => TRUE],
+      'user_id' => ['type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE],
+      'organization' => ['type' => 'varchar', 'length' => 255, 'not null' => TRUE, 'default' => ''],
+      'sector' => ['type' => 'varchar', 'length' => 128, 'not null' => FALSE],
+      'logo_path' => ['type' => 'varchar', 'length' => 512, 'not null' => FALSE],
+      'phone' => ['type' => 'varchar', 'length' => 32, 'not null' => FALSE],
+      'address' => ['type' => 'text', 'not null' => FALSE],
+      'website' => ['type' => 'varchar', 'length' => 512, 'not null' => FALSE],
+      'created' => ['type' => 'int', 'not null' => TRUE, 'default' => 0],
+      'updated' => ['type' => 'int', 'not null' => TRUE, 'default' => 0],
+    ],
+    'primary key' => ['id'],
+    'unique keys' => ['user_id' => ['user_id']],
+  ];
+
+  $schema['bongolava_job_offer'] = [
+    'description' => 'Job offers.',
+    'fields' => [
+      'id' => ['type' => 'serial', 'unsigned' => TRUE, 'not null' => TRUE],
+      'recruiter_id' => ['type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE],
+      'title' => ['type' => 'varchar', 'length' => 255, 'not null' => TRUE, 'default' => ''],
+      'description' => ['type' => 'text', 'not null' => TRUE],
+      'location' => ['type' => 'varchar', 'length' => 255, 'not null' => TRUE, 'default' => ''],
+      'contract_type' => ['type' => 'varchar', 'length' => 32, 'not null' => TRUE, 'default' => 'CDI'],
+      'sector' => ['type' => 'varchar', 'length' => 128, 'not null' => FALSE],
+      'profession' => ['type' => 'varchar', 'length' => 128, 'not null' => FALSE],
+      'duration' => ['type' => 'varchar', 'length' => 64, 'not null' => FALSE],
+      'salary' => ['type' => 'varchar', 'length' => 128, 'not null' => FALSE],
+      'salary_min' => ['type' => 'varchar', 'length' => 32, 'not null' => FALSE],
+      'salary_max' => ['type' => 'varchar', 'length' => 32, 'not null' => FALSE],
+      'experience_level' => ['type' => 'varchar', 'length' => 64, 'not null' => FALSE],
+      'education_level' => ['type' => 'varchar', 'length' => 64, 'not null' => FALSE],
+      'positions_count' => ['type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'default' => 1],
+      'deadline' => ['type' => 'varchar', 'length' => 16, 'not null' => FALSE],
+      'tags' => ['type' => 'text', 'not null' => FALSE],
+      'benefits' => ['type' => 'text', 'not null' => FALSE],
+      'is_remote' => ['type' => 'int', 'size' => 'tiny', 'not null' => TRUE, 'default' => 0],
+      'is_urgent' => ['type' => 'int', 'size' => 'tiny', 'not null' => TRUE, 'default' => 0],
+      'contact_email' => ['type' => 'varchar', 'length' => 255, 'not null' => TRUE, 'default' => ''],
+      'contact_phone' => ['type' => 'varchar', 'length' => 32, 'not null' => FALSE],
+      'status' => ['type' => 'varchar', 'length' => 16, 'not null' => TRUE, 'default' => 'pending'],
+      'approved_at' => ['type' => 'int', 'not null' => FALSE],
+      'approved_by' => ['type' => 'int', 'unsigned' => TRUE, 'not null' => FALSE],
+      'rejected_at' => ['type' => 'int', 'not null' => FALSE],
+      'rejected_by' => ['type' => 'int', 'unsigned' => TRUE, 'not null' => FALSE],
+      'rejection_reason' => ['type' => 'text', 'not null' => FALSE],
+      'created' => ['type' => 'int', 'not null' => TRUE, 'default' => 0],
+      'updated' => ['type' => 'int', 'not null' => TRUE, 'default' => 0],
+    ],
+    'primary key' => ['id'],
+    'indexes' => [
+      'recruiter_id' => ['recruiter_id'],
+      'status' => ['status'],
+    ],
+  ];
+
+  $schema['bongolava_job_application'] = [
+    'description' => 'Job applications.',
+    'fields' => [
+      'id' => ['type' => 'serial', 'unsigned' => TRUE, 'not null' => TRUE],
+      'job_id' => ['type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE],
+      'candidate_id' => ['type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE],
+      'name' => ['type' => 'varchar', 'length' => 255, 'not null' => TRUE, 'default' => ''],
+      'email' => ['type' => 'varchar', 'length' => 255, 'not null' => TRUE, 'default' => ''],
+      'phone' => ['type' => 'varchar', 'length' => 32, 'not null' => TRUE, 'default' => ''],
+      'cover_letter' => ['type' => 'text', 'not null' => FALSE],
+      'cv_path' => ['type' => 'varchar', 'length' => 512, 'not null' => FALSE],
+      'status' => ['type' => 'varchar', 'length' => 16, 'not null' => TRUE, 'default' => 'pending'],
+      'rejection_reason' => ['type' => 'text', 'not null' => FALSE],
+      'status_updated_at' => ['type' => 'int', 'not null' => FALSE],
+      'created' => ['type' => 'int', 'not null' => TRUE, 'default' => 0],
+      'updated' => ['type' => 'int', 'not null' => TRUE, 'default' => 0],
+    ],
+    'primary key' => ['id'],
+    'indexes' => [
+      'job_id' => ['job_id'],
+      'candidate_id' => ['candidate_id'],
+    ],
+  ];
+
+  $schema['bongolava_job_saved_job'] = [
+    'description' => 'Saved jobs by candidates.',
+    'fields' => [
+      'id' => ['type' => 'serial', 'unsigned' => TRUE, 'not null' => TRUE],
+      'user_id' => ['type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE],
+      'job_id' => ['type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE],
+      'created' => ['type' => 'int', 'not null' => TRUE, 'default' => 0],
+    ],
+    'primary key' => ['id'],
+    'unique keys' => ['user_job' => ['user_id', 'job_id']],
+  ];
+
+  $schema['bongolava_job_event'] = [
+    'description' => 'Events.',
+    'fields' => [
+      'id' => ['type' => 'serial', 'unsigned' => TRUE, 'not null' => TRUE],
+      'title' => ['type' => 'varchar', 'length' => 255, 'not null' => TRUE, 'default' => ''],
+      'description' => ['type' => 'text', 'not null' => TRUE],
+      'location' => ['type' => 'varchar', 'length' => 255, 'not null' => TRUE, 'default' => ''],
+      'date' => ['type' => 'varchar', 'length' => 16, 'not null' => TRUE, 'default' => ''],
+      'time' => ['type' => 'varchar', 'length' => 8, 'not null' => TRUE, 'default' => '09:00'],
+      'type' => ['type' => 'varchar', 'length' => 32, 'not null' => TRUE, 'default' => 'forum'],
+      'organizer' => ['type' => 'varchar', 'length' => 255, 'not null' => TRUE, 'default' => ''],
+      'max_participants' => ['type' => 'int', 'unsigned' => TRUE, 'not null' => FALSE],
+      'require_approval' => ['type' => 'int', 'size' => 'tiny', 'not null' => TRUE, 'default' => 0],
+      'contact_email' => ['type' => 'varchar', 'length' => 255, 'not null' => FALSE],
+      'contact_phone' => ['type' => 'varchar', 'length' => 32, 'not null' => FALSE],
+      'created_by' => ['type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'default' => 0],
+      'created' => ['type' => 'int', 'not null' => TRUE, 'default' => 0],
+      'updated' => ['type' => 'int', 'not null' => TRUE, 'default' => 0],
+    ],
+    'primary key' => ['id'],
+  ];
+
+  $schema['bongolava_job_event_registration'] = [
+    'description' => 'Event registrations.',
+    'fields' => [
+      'id' => ['type' => 'serial', 'unsigned' => TRUE, 'not null' => TRUE],
+      'event_id' => ['type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE],
+      'name' => ['type' => 'varchar', 'length' => 255, 'not null' => TRUE, 'default' => ''],
+      'email' => ['type' => 'varchar', 'length' => 255, 'not null' => TRUE, 'default' => ''],
+      'phone' => ['type' => 'varchar', 'length' => 32, 'not null' => TRUE, 'default' => ''],
+      'created' => ['type' => 'int', 'not null' => TRUE, 'default' => 0],
+    ],
+    'primary key' => ['id'],
+    'indexes' => ['event_id' => ['event_id']],
+  ];
+
+  $schema['bongolava_job_contact_message'] = [
+    'description' => 'Contact form messages.',
+    'fields' => [
+      'id' => ['type' => 'serial', 'unsigned' => TRUE, 'not null' => TRUE],
+      'name' => ['type' => 'varchar', 'length' => 255, 'not null' => TRUE, 'default' => ''],
+      'email' => ['type' => 'varchar', 'length' => 255, 'not null' => TRUE, 'default' => ''],
+      'message' => ['type' => 'text', 'not null' => TRUE],
+      'is_read' => ['type' => 'int', 'size' => 'tiny', 'not null' => TRUE, 'default' => 0],
+      'created' => ['type' => 'int', 'not null' => TRUE, 'default' => 0],
+    ],
+    'primary key' => ['id'],
+  ];
+
+  return $schema;
+}
+
+/**
+ * Implements hook_install().
+ */
+function bongolava_job_install() {
+  /** @var \Drupal\bongolava_job\Service\SchemaInstaller $installer */
+  $installer = \Drupal::service('bongolava_job.schema_installer');
+  $installer->installTables();
+  $scheme = \Drupal::config('bongolava_job.settings')->get('api.storage_scheme') ?? 'public://bongolava_job';
+  $installer->runPostInstallTasks($scheme);
+}

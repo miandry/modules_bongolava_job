@@ -1,0 +1,8 @@
+name: 'Bongolava Jobs'
+type: module
+description: 'REST API for Bongolava Jobs platform (candidates, recruiters, job offers, events).'
+package: Bongolava
+core_version_requirement: ^9 || ^10
+dependencies:
+  - drupal:user
+  - drupal:file

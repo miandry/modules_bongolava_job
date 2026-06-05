@@ -1,0 +1,497 @@
+# Auth
+bongolava_job.api.login:
+  path: '/bongolava_job/login'
+  defaults:
+    _controller: '\Drupal\bongolava_job\Controller\AuthApiController::login'
+  methods: [POST]
+  requirements:
+    _access: 'TRUE'
+
+bongolava_job.api.logout:
+  path: '/bongolava_job/logout'
+  defaults:
+    _controller: '\Drupal\bongolava_job\Controller\AuthApiController::logout'
+  methods: [POST]
+  requirements:
+    _access: 'TRUE'
+
+bongolava_job.api.me:
+  path: '/bongolava_job/me'
+  defaults:
+    _controller: '\Drupal\bongolava_job\Controller\AuthApiController::me'
+  methods: [GET]
+  requirements:
+    _access: 'TRUE'
+
+bongolava_job.api.register_candidate:
+  path: '/bongolava_job/register/candidate'
+  defaults:
+    _controller: '\Drupal\bongolava_job\Controller\AuthApiController::registerCandidate'
+  methods: [POST]
+  requirements:
+    _access: 'TRUE'
+
+bongolava_job.api.register_recruiter:
+  path: '/bongolava_job/register/recruiter'
+  defaults:
+    _controller: '\Drupal\bongolava_job\Controller\AuthApiController::registerRecruiter'
+  methods: [POST]
+  requirements:
+    _access: 'TRUE'
+
+# Jobs
+bongolava_job.api.jobs_list:
+  path: '/bongolava_job/jobs'
+  defaults:
+    _controller: '\Drupal\bongolava_job\Controller\JobApiController::list'
+  methods: [GET]
+  requirements:
+    _access: 'TRUE'
+
+bongolava_job.api.jobs_get:
+  path: '/bongolava_job/jobs/{id}'
+  defaults:
+    _controller: '\Drupal\bongolava_job\Controller\JobApiController::get'
+  methods: [GET]
+  requirements:
+    id: '\d+'
+    _access: 'TRUE'
+
+bongolava_job.api.jobs_create:
+  path: '/bongolava_job/jobs'
+  defaults:
+    _controller: '\Drupal\bongolava_job\Controller\JobApiController::createJob'
+  methods: [POST]
+  requirements:
+    _access: 'TRUE'
+
+bongolava_job.api.jobs_update:
+  path: '/bongolava_job/jobs/{id}'
+  defaults:
+    _controller: '\Drupal\bongolava_job\Controller\JobApiController::update'
+  methods: [PUT]
+  requirements:
+    id: '\d+'
+    _access: 'TRUE'
+
+bongolava_job.api.jobs_delete:
+  path: '/bongolava_job/jobs/{id}'
+  defaults:
+    _controller: '\Drupal\bongolava_job\Controller\JobApiController::delete'
+  methods: [DELETE]
+  requirements:
+    id: '\d+'
+    _access: 'TRUE'
+
+bongolava_job.api.my_jobs:
+  path: '/bongolava_job/my-jobs'
+  defaults:
+    _controller: '\Drupal\bongolava_job\Controller\JobApiController::myJobs'
+  methods: [GET]
+  requirements:
+    _access: 'TRUE'
+
+# Admin jobs
+bongolava_job.api.admin_jobs_pending:
+  path: '/bongolava_job/admin/jobs/pending'
+  defaults:
+    _controller: '\Drupal\bongolava_job\Controller\AdminJobApiController::pending'
+  methods: [GET]
+  requirements:
+    _access: 'TRUE'
+
+bongolava_job.api.admin_jobs_approve:
+  path: '/bongolava_job/admin/jobs/{id}/approve'
+  defaults:
+    _controller: '\Drupal\bongolava_job\Controller\AdminJobApiController::approve'
+  methods: [POST]
+  requirements:
+    id: '\d+'
+    _access: 'TRUE'
+
+bongolava_job.api.admin_jobs_reject:
+  path: '/bongolava_job/admin/jobs/{id}/reject'
+  defaults:
+    _controller: '\Drupal\bongolava_job\Controller\AdminJobApiController::reject'
+  methods: [POST]
+  requirements:
+    id: '\d+'
+    _access: 'TRUE'
+
+bongolava_job.api.admin_jobs_force_expire:
+  path: '/bongolava_job/admin/jobs/force-expire'
+  defaults:
+    _controller: '\Drupal\bongolava_job\Controller\AdminJobApiController::forceExpire'
+  methods: [POST]
+  requirements:
+    _access: 'TRUE'
+
+# Candidates
+bongolava_job.api.candidates_list:
+  path: '/bongolava_job/candidates'
+  defaults:
+    _controller: '\Drupal\bongolava_job\Controller\CandidateApiController::list'
+  methods: [GET]
+  requirements:
+    _access: 'TRUE'
+
+bongolava_job.api.candidates_get:
+  path: '/bongolava_job/candidates/{id}'
+  defaults:
+    _controller: '\Drupal\bongolava_job\Controller\CandidateApiController::get'
+  methods: [GET]
+  requirements:
+    id: '\d+'
+    _access: 'TRUE'
+
+bongolava_job.api.my_candidate_profile:
+  path: '/bongolava_job/my-candidate-profile'
+  defaults:
+    _controller: '\Drupal\bongolava_job\Controller\CandidateApiController::myProfile'
+  methods: [GET]
+  requirements:
+    _access: 'TRUE'
+
+bongolava_job.api.my_candidate_profile_update:
+  path: '/bongolava_job/my-candidate-profile'
+  defaults:
+    _controller: '\Drupal\bongolava_job\Controller\CandidateApiController::updateMyProfile'
+  methods: [PUT]
+  requirements:
+    _access: 'TRUE'
+
+bongolava_job.api.candidate_upload_photo:
+  path: '/bongolava_job/candidate/upload-photo'
+  defaults:
+    _controller: '\Drupal\bongolava_job\Controller\CandidateApiController::uploadPhoto'
+  methods: [POST]
+  requirements:
+    _access: 'TRUE'
+
+bongolava_job.api.candidate_upload_cv:
+  path: '/bongolava_job/candidate/upload-cv'
+  defaults:
+    _controller: '\Drupal\bongolava_job\Controller\CandidateApiController::uploadCv'
+  methods: [POST]
+  requirements:
+    _access: 'TRUE'
+
+bongolava_job.api.candidate_download_cv:
+  path: '/bongolava_job/candidate/download-cv'
+  defaults:
+    _controller: '\Drupal\bongolava_job\Controller\CandidateApiController::downloadCv'
+  methods: [GET]
+  requirements:
+    _access: 'TRUE'
+
+bongolava_job.api.candidate_delete_cv:
+  path: '/bongolava_job/candidate/delete-cv'
+  defaults:
+    _controller: '\Drupal\bongolava_job\Controller\CandidateApiController::deleteCv'
+  methods: [DELETE]
+  requirements:
+    _access: 'TRUE'
+
+# Recruiters
+bongolava_job.api.my_recruiter_profile:
+  path: '/bongolava_job/my-recruiter-profile'
+  defaults:
+    _controller: '\Drupal\bongolava_job\Controller\RecruiterApiController::myProfile'
+  methods: [GET]
+  requirements:
+    _access: 'TRUE'
+
+bongolava_job.api.my_recruiter_profile_update:
+  path: '/bongolava_job/my-recruiter-profile'
+  defaults:
+    _controller: '\Drupal\bongolava_job\Controller\RecruiterApiController::updateMyProfile'
+  methods: [PUT]
+  requirements:
+    _access: 'TRUE'
+
+bongolava_job.api.recruiter_upload_logo:
+  path: '/bongolava_job/recruiter/upload-logo'
+  defaults:
+    _controller: '\Drupal\bongolava_job\Controller\RecruiterApiController::uploadLogo'
+  methods: [POST]
+  requirements:
+    _access: 'TRUE'
+
+# Applications
+bongolava_job.api.candidate_applications:
+  path: '/bongolava_job/candidate/applications'
+  defaults:
+    _controller: '\Drupal\bongolava_job\Controller\ApplicationApiController::candidateApplications'
+  methods: [GET]
+  requirements:
+    _access: 'TRUE'
+
+bongolava_job.api.recruiter_applications:
+  path: '/bongolava_job/recruiter/applications'
+  defaults:
+    _controller: '\Drupal\bongolava_job\Controller\ApplicationApiController::recruiterApplications'
+  methods: [GET]
+  requirements:
+    _access: 'TRUE'
+
+bongolava_job.api.recruiter_application_update:
+  path: '/bongolava_job/recruiter/applications/{id}'
+  defaults:
+    _controller: '\Drupal\bongolava_job\Controller\ApplicationApiController::updateRecruiterApplication'
+  methods: [PUT]
+  requirements:
+    id: '\d+'
+    _access: 'TRUE'
+
+bongolava_job.api.job_apply:
+  path: '/bongolava_job/jobs/{job_id}/apply'
+  defaults:
+    _controller: '\Drupal\bongolava_job\Controller\ApplicationApiController::apply'
+  methods: [POST]
+  requirements:
+    job_id: '\d+'
+    _access: 'TRUE'
+
+# Saved jobs
+bongolava_job.api.saved_jobs_list:
+  path: '/bongolava_job/candidate/saved-jobs'
+  defaults:
+    _controller: '\Drupal\bongolava_job\Controller\SavedJobApiController::list'
+  methods: [GET]
+  requirements:
+    _access: 'TRUE'
+
+bongolava_job.api.saved_jobs_save:
+  path: '/bongolava_job/candidate/saved-jobs/{jobId}'
+  defaults:
+    _controller: '\Drupal\bongolava_job\Controller\SavedJobApiController::save'
+  methods: [POST]
+  requirements:
+    jobId: '\d+'
+    _access: 'TRUE'
+
+bongolava_job.api.saved_jobs_delete:
+  path: '/bongolava_job/candidate/saved-jobs/{savedJobId}'
+  defaults:
+    _controller: '\Drupal\bongolava_job\Controller\SavedJobApiController::delete'
+  methods: [DELETE]
+  requirements:
+    savedJobId: '\d+'
+    _access: 'TRUE'
+
+# Events
+bongolava_job.api.events_list:
+  path: '/bongolava_job/events'
+  defaults:
+    _controller: '\Drupal\bongolava_job\Controller\EventApiController::list'
+  methods: [GET]
+  requirements:
+    _access: 'TRUE'
+
+bongolava_job.api.events_get:
+  path: '/bongolava_job/events/{id}'
+  defaults:
+    _controller: '\Drupal\bongolava_job\Controller\EventApiController::get'
+  methods: [GET]
+  requirements:
+    id: '\d+'
+    _access: 'TRUE'
+
+bongolava_job.api.events_register:
+  path: '/bongolava_job/events/{id}/register'
+  defaults:
+    _controller: '\Drupal\bongolava_job\Controller\EventApiController::register'
+  methods: [POST]
+  requirements:
+    id: '\d+'
+    _access: 'TRUE'
+
+bongolava_job.api.events_create:
+  path: '/bongolava_job/events'
+  defaults:
+    _controller: '\Drupal\bongolava_job\Controller\EventApiController::createEvent'
+  methods: [POST]
+  requirements:
+    _access: 'TRUE'
+
+bongolava_job.api.events_update:
+  path: '/bongolava_job/events/{id}'
+  defaults:
+    _controller: '\Drupal\bongolava_job\Controller\EventApiController::update'
+  methods: [PUT]
+  requirements:
+    id: '\d+'
+    _access: 'TRUE'
+
+bongolava_job.api.events_delete:
+  path: '/bongolava_job/events/{id}'
+  defaults:
+    _controller: '\Drupal\bongolava_job\Controller\EventApiController::delete'
+  methods: [DELETE]
+  requirements:
+    id: '\d+'
+    _access: 'TRUE'
+
+# Contact
+bongolava_job.api.contact:
+  path: '/bongolava_job/contact'
+  defaults:
+    _controller: '\Drupal\bongolava_job\Controller\ContactApiController::submit'
+  methods: [POST]
+  requirements:
+    _access: 'TRUE'
+
+bongolava_job.api.contacts_list:
+  path: '/bongolava_job/contacts'
+  defaults:
+    _controller: '\Drupal\bongolava_job\Controller\ContactApiController::list'
+  methods: [GET]
+  requirements:
+    _access: 'TRUE'
+
+bongolava_job.api.admin_message_read:
+  path: '/bongolava_job/admin/messages/{id}/read'
+  defaults:
+    _controller: '\Drupal\bongolava_job\Controller\ContactApiController::markRead'
+  methods: [PUT]
+  requirements:
+    id: '\d+'
+    _access: 'TRUE'
+
+bongolava_job.api.admin_message_delete:
+  path: '/bongolava_job/admin/messages/{id}'
+  defaults:
+    _controller: '\Drupal\bongolava_job\Controller\ContactApiController::delete'
+  methods: [DELETE]
+  requirements:
+    id: '\d+'
+    _access: 'TRUE'
+
+# Admin users
+bongolava_job.api.admin_users:
+  path: '/bongolava_job/admin/users'
+  defaults:
+    _controller: '\Drupal\bongolava_job\Controller\AdminUserApiController::list'
+  methods: [GET]
+  requirements:
+    _access: 'TRUE'
+
+bongolava_job.api.admin_user_status:
+  path: '/bongolava_job/admin/users/{id}/status'
+  defaults:
+    _controller: '\Drupal\bongolava_job\Controller\AdminUserApiController::updateStatus'
+  methods: [PUT]
+  requirements:
+    id: '\d+'
+    _access: 'TRUE'
+
+# Vue SPA shell — direct hits to /jobs, /profils, etc. (no 404 round-trip)
+bongolava_job.spa.jobs:
+  path: '/jobs'
+  defaults:
+    _controller: '\Drupal\bongolava_job\Controller\SpaController::shell'
+  requirements:
+    _access: 'TRUE'
+
+bongolava_job.spa.job_detail:
+  path: '/jobs/{id}'
+  defaults:
+    _controller: '\Drupal\bongolava_job\Controller\SpaController::shell'
+  requirements:
+    _access: 'TRUE'
+    id: '\d+'
+
+bongolava_job.spa.profils:
+  path: '/profils'
+  defaults:
+    _controller: '\Drupal\bongolava_job\Controller\SpaController::shell'
+  requirements:
+    _access: 'TRUE'
+
+bongolava_job.spa.profil_detail:
+  path: '/profils/{id}'
+  defaults:
+    _controller: '\Drupal\bongolava_job\Controller\SpaController::shell'
+  requirements:
+    _access: 'TRUE'
+    id: '\d+'
+
+bongolava_job.spa.events:
+  path: '/evenements'
+  defaults:
+    _controller: '\Drupal\bongolava_job\Controller\SpaController::shell'
+  requirements:
+    _access: 'TRUE'
+
+bongolava_job.spa.event_detail:
+  path: '/evenements/{id}'
+  defaults:
+    _controller: '\Drupal\bongolava_job\Controller\SpaController::shell'
+  requirements:
+    _access: 'TRUE'
+    id: '\d+'
+
+bongolava_job.spa.contact:
+  path: '/contact'
+  defaults:
+    _controller: '\Drupal\bongolava_job\Controller\SpaController::shell'
+  requirements:
+    _access: 'TRUE'
+
+bongolava_job.spa.faq:
+  path: '/faq'
+  defaults:
+    _controller: '\Drupal\bongolava_job\Controller\SpaController::shell'
+  requirements:
+    _access: 'TRUE'
+
+bongolava_job.spa.mentions:
+  path: '/mentions-legales'
+  defaults:
+    _controller: '\Drupal\bongolava_job\Controller\SpaController::shell'
+  requirements:
+    _access: 'TRUE'
+
+bongolava_job.spa.privacy:
+  path: '/privacy'
+  defaults:
+    _controller: '\Drupal\bongolava_job\Controller\SpaController::shell'
+  requirements:
+    _access: 'TRUE'
+
+bongolava_job.spa.cookies:
+  path: '/cookies'
+  defaults:
+    _controller: '\Drupal\bongolava_job\Controller\SpaController::shell'
+  requirements:
+    _access: 'TRUE'
+
+bongolava_job.spa.login:
+  path: '/login'
+  defaults:
+    _controller: '\Drupal\bongolava_job\Controller\SpaController::shell'
+  requirements:
+    _access: 'TRUE'
+
+bongolava_job.spa.register:
+  path: '/register'
+  defaults:
+    _controller: '\Drupal\bongolava_job\Controller\SpaController::shell'
+  requirements:
+    _access: 'TRUE'
+
+bongolava_job.spa.mon_profil:
+  path: '/mon-profil'
+  defaults:
+    _controller: '\Drupal\bongolava_job\Controller\SpaController::shell'
+  requirements:
+    _access: 'TRUE'
+
+# Admin configuration
+bongolava_job.settings:
+  path: '/admin/config/system/bongolava-job'
+  defaults:
+    _form: '\Drupal\bongolava_job\Form\SettingsForm'
+    _title: 'Bongolava Jobs'
+  requirements:
+    _permission: 'administer bongolava job'

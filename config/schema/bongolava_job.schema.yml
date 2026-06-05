@@ -1,0 +1,29 @@
+bongolava_job.settings:
+  type: config_object
+  label: 'Bongolava Jobs settings'
+  mapping:
+    api:
+      type: mapping
+      label: 'API metadata'
+      mapping:
+        name:
+          type: string
+          label: 'API name'
+        version:
+          type: string
+          label: 'API version'
+        base_path:
+          type: string
+          label: 'Base path'
+        storage_scheme:
+          type: string
+          label: 'File storage scheme'
+    token_ttl_days:
+      type: integer
+      label: 'Bearer token TTL (days)'
+    jobs_per_page:
+      type: integer
+      label: 'Jobs per page'
+    candidates_per_page:
+      type: integer
+      label: 'Candidates per page'

@@ -1,0 +1,61 @@
+services:
+  bongolava_job.api_response:
+    class: Drupal\bongolava_job\Service\ApiResponseFactory
+
+  bongolava_job.auth:
+    class: Drupal\bongolava_job\Service\AuthService
+    arguments: ['@keyvalue.expirable', '@config.factory', '@password', '@entity_type.manager']
+
+  bongolava_job.serializer:
+    class: Drupal\bongolava_job\Service\ApiSerializer
+    arguments: ['@user.data', '@file_url_generator', '@config.factory']
+
+  bongolava_job.user_repository:
+    class: Drupal\bongolava_job\Repository\UserRepository
+    arguments: ['@user.data', '@entity_type.manager', '@bongolava_job.serializer']
+
+  bongolava_job.candidate_repository:
+    class: Drupal\bongolava_job\Repository\CandidateRepository
+    arguments: ['@entity_type.manager', '@bongolava_job.serializer', '@file_url_generator']
+
+  bongolava_job.recruiter_repository:
+    class: Drupal\bongolava_job\Repository\RecruiterRepository
+    arguments: ['@user.data', '@bongolava_job.serializer']
+
+  bongolava_job.job_repository:
+    class: Drupal\bongolava_job\Repository\JobRepository
+    arguments: ['@entity_type.manager', '@bongolava_job.serializer', '@config.factory']
+
+  bongolava_job.application_repository:
+    class: Drupal\bongolava_job\Repository\ApplicationRepository
+    arguments: ['@entity_type.manager', '@bongolava_job.serializer']
+
+  bongolava_job.saved_job_repository:
+    class: Drupal\bongolava_job\Repository\SavedJobRepository
+    arguments: ['@user.data', '@entity_type.manager']
+
+  bongolava_job.event_repository:
+    class: Drupal\bongolava_job\Repository\EventRepository
+    arguments: ['@entity_type.manager', '@bongolava_job.serializer']
+
+  bongolava_job.contact_repository:
+    class: Drupal\bongolava_job\Repository\ContactRepository
+    arguments: ['@entity_type.manager', '@bongolava_job.serializer']
+
+  bongolava_job.file_upload:
+    class: Drupal\bongolava_job\Service\FileUploadService
+    arguments: ['@file_system', '@config.factory', '@bongolava_job.serializer']
+
+  bongolava_job.schema_installer:
+    class: Drupal\bongolava_job\Service\SchemaInstaller
+    arguments: ['@database', '@module_handler', '@file_system']
+
+  bongolava_job.spa_controller:
+    class: Drupal\bongolava_job\Controller\SpaController
+    arguments: ['@theme_handler']
+
+  bongolava_job.spa_routing_subscriber:
+    class: Drupal\bongolava_job\EventSubscriber\SpaRoutingSubscriber
+    arguments: ['@bongolava_job.spa_controller', '@config.factory']
+    tags:
+      - { name: event_subscriber }

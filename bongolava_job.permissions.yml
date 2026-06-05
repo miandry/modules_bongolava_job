@@ -1,0 +1,15 @@
+access bongolava job api:
+  title: 'Access Bongolava Jobs public API'
+  description: 'Allows access to public JSON API routes.'
+
+administer bongolava job:
+  title: 'Administer Bongolava Jobs'
+  description: 'Full access to job moderation, users, events, and contact messages.'
+
+bongolava job recruiter:
+  title: 'Bongolava recruiter'
+  description: 'Create and manage job offers and applications.'
+
+bongolava job candidate:
+  title: 'Bongolava candidate'
+  description: 'Manage candidate profile, applications, and saved jobs.'
