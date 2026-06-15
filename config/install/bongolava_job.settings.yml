@@ -4,5 +4,6 @@ api:
   base_path: '/bongolava_job'
   storage_scheme: 'public://bongolava_job'
 token_ttl_days: 30
+cookie_secure_mode: auto
 jobs_per_page: 15
 candidates_per_page: 15

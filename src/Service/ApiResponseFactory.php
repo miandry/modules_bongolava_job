@@ -2,6 +2,7 @@
 
 namespace Drupal\bongolava_job\Service;
 
+use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
 /**
@@ -56,6 +57,11 @@ final class ApiResponseFactory {
       'per_page' => $perPage,
       'total' => $total,
     ]);
+  }
+
+  public function withCookie(JsonResponse $response, Cookie $cookie): JsonResponse {
+    $response->headers->setCookie($cookie);
+    return $response;
   }
 
 }

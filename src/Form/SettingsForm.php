@@ -78,6 +78,17 @@ class SettingsForm extends ConfigFormBase {
       '#default_value' => $cfg->get('token_ttl_days') ?? 30,
       '#min' => 0,
     ];
+    $form['pagination']['cookie_secure_mode'] = [
+      '#type' => 'select',
+      '#title' => $this->t('Auth cookie Secure flag'),
+      '#default_value' => $cfg->get('cookie_secure_mode') ?? 'auto',
+      '#options' => [
+        'auto' => $this->t('Automatic (HTTPS only)'),
+        'insecure' => $this->t('Disabled (HTTP development)'),
+        'secure' => $this->t('Always enabled (production HTTPS)'),
+      ],
+      '#description' => $this->t('Controls the Secure attribute on the bongolava_auth cookie. Use "Disabled" for local HTTP development (e.g. http://bongolava.local).'),
+    ];
     $form['pagination']['jobs_per_page'] = [
       '#type' => 'number',
       '#title' => $this->t('Jobs per page'),
@@ -141,6 +152,7 @@ class SettingsForm extends ConfigFormBase {
       ->set('api.base_path', trim($form_state->getValue('base_path')))
       ->set('api.storage_scheme', trim($form_state->getValue('storage_scheme')))
       ->set('token_ttl_days', (int) $form_state->getValue('token_ttl_days'))
+      ->set('cookie_secure_mode', $form_state->getValue('cookie_secure_mode'))
       ->set('jobs_per_page', (int) $form_state->getValue('jobs_per_page'))
       ->set('candidates_per_page', (int) $form_state->getValue('candidates_per_page'))
       ->save();

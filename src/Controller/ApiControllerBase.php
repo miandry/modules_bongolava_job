@@ -39,7 +39,7 @@ abstract class ApiControllerBase extends ControllerBase {
   }
 
   protected function bearerUser(): ?UserInterface {
-    return $this->auth->authenticateByToken($this->auth->extractBearerToken());
+    return $this->auth->authenticateByToken($this->auth->extractAuthToken());
   }
 
   protected function requireAuth(?string $role = NULL): UserInterface|\Symfony\Component\HttpFoundation\JsonResponse {

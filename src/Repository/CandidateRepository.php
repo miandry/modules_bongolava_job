@@ -10,7 +10,8 @@ use Drupal\bongolava_job\Service\ApiSerializer;
 /**
  * Candidate profile repository using profil_candidat nodes.
  */
-final class CandidateRepository {
+final class CandidateRepository
+{
 
   public function __construct(
     private readonly EntityTypeManagerInterface $entityTypeManager,
@@ -18,28 +19,57 @@ final class CandidateRepository {
     private readonly FileUrlGeneratorInterface $fileUrlGenerator,
   ) {}
 
-  private function resolveTermId(string $vocabId, string $name): ?int {
+  private function resolveTermId(string $vocabId, string $name): ?int
+  {
     if (empty($name)) {
       return NULL;
     }
-    $terms = $this->entityTypeManager->getStorage('taxonomy_term')
-      ->loadByProperties(['vid' => $vocabId, 'name' => $name]);
-    if ($terms) {
-      return (int) reset($terms)->id();
+
+    $name = trim($name);
+    $database = \Drupal::database();
+
+    // Recherche d'égalité stricte insensible à la casse
+    $query = $database->select('taxonomy_term_field_data', 't');
+    $query->addField('t', 'tid');
+    $query->condition('t.vid', $vocabId);
+    $query->where('LOWER(t.name) = LOWER(:name)', [':name' => $name]);
+    $tid = $query->execute()->fetchField();
+
+    if ($tid) {
+      return (int) $tid;
     }
-    return NULL;
+
+    // Création du terme
+    try {
+      $termStorage = $this->entityTypeManager->getStorage('taxonomy_term');
+
+      // Normaliser la casse (optionnel)
+      $normalizedName = ucfirst(strtolower($name));
+
+      $term = $termStorage->create([
+        'vid' => $vocabId,
+        'name' => $normalizedName,
+      ]);
+      $term->save();
+
+      return (int) $term->id();
+    } catch (\Exception $e) {
+      return NULL;
+    }
   }
 
-  private function setNodeFields(Node $node, array $data): void {
+  private function setNodeFields(Node $node, array $data): void
+  {
     $simpleFields = [
       'first_name' => 'field_first_name',
       'last_name' => 'field_last_name',
       'job_target' => 'field_job_target',
       'bio' => 'field_bio',
-      'experience' => 'field_experience',
-      'education' => 'field_education',
+      'experience_level' => 'field_experience',
+      'educations' => 'field_education',
       'certifications' => 'field_certifications',
       'languages' => 'field_languages',
+      'skills' => 'field_competences',
       'phone' => 'field_phone',
       'email' => 'field_email_contact',
       'cv_path' => 'field_cv',
@@ -61,24 +91,26 @@ final class CandidateRepository {
       $tid = $this->resolveTermId('localisation', $data['location']);
       $node->set('field_localisation', $tid ? ['target_id' => $tid] : NULL);
     }
-    if (isset($data['skills'])) {
-      // skills may be a comma-separated string or array of term names.
-      $skillNames = is_array($data['skills']) ? $data['skills'] : explode(',', $data['skills']);
-      $tids = [];
-      foreach ($skillNames as $name) {
-        $name = trim($name);
-        if ($name !== '') {
-          $tid = $this->resolveTermId('competences', $name);
-          if ($tid) {
-            $tids[] = ['target_id' => $tid];
-          }
-        }
-      }
-      $node->set('field_competences', $tids ?: NULL);
-    }
+
+    // if (isset($data['skills'])) {
+    //   // skills may be a comma-separated string or array of term names.
+    //   $skillNames = is_array($data['skills']) ? $data['skills'] : explode(',', $data['skills']);
+    //   $tids = [];
+    //   foreach ($skillNames as $name) {
+    //     $name = trim($name);
+    //     if ($name !== '') {
+    //       $tid = $this->resolveTermId('competences', $name);
+    //       if ($tid) {
+    //         $tids[] = ['target_id' => $tid];
+    //       }
+    //     }
+    //   }
+    //   $node->set('field_competences', $tids ?: NULL);
+    // }
   }
 
-  public function create(int $userId, array $data): array {
+  public function create(int $userId, array $data): array
+  {
     $firstName = $data['first_name'] ?? '';
     $lastName = $data['last_name'] ?? '';
     $node = Node::create([
@@ -92,7 +124,8 @@ final class CandidateRepository {
     return $this->normalizeNode($node);
   }
 
-  public function load(int $id): ?array {
+  public function load(int $id): ?array
+  {
     $node = Node::load($id);
     if (!$node || $node->bundle() !== 'profil_candidat') {
       return NULL;
@@ -100,7 +133,8 @@ final class CandidateRepository {
     return $this->normalizeNode($node);
   }
 
-  public function loadByUser(int $userId): ?array {
+  public function loadByUser(int $userId): ?array
+  {
     $nids = $this->entityTypeManager->getStorage('node')->getQuery()
       ->accessCheck(FALSE)
       ->condition('type', 'profil_candidat')
@@ -114,7 +148,8 @@ final class CandidateRepository {
     return $node ? $this->normalizeNode($node) : NULL;
   }
 
-  public function updateByUser(int $userId, array $data): ?array {
+  public function updateByUser(int $userId, array $data): ?array
+  {
     $nids = $this->entityTypeManager->getStorage('node')->getQuery()
       ->accessCheck(FALSE)
       ->condition('type', 'profil_candidat')
@@ -138,7 +173,8 @@ final class CandidateRepository {
     return $this->normalizeNode($node);
   }
 
-  public function updatePath(int $userId, string $column, string $path): ?array {
+  public function updatePath(int $userId, string $column, string $path): ?array
+  {
     $nids = $this->entityTypeManager->getStorage('node')->getQuery()
       ->accessCheck(FALSE)
       ->condition('type', 'profil_candidat')
@@ -154,15 +190,15 @@ final class CandidateRepository {
     }
     if ($column === 'photo_path') {
       $node->set('field_photo', $path);
-    }
-    elseif ($column === 'cv_path') {
+    } elseif ($column === 'cv_path') {
       $node->set('field_cv', $path);
     }
     $node->save();
     return $this->normalizeNode($node);
   }
 
-  public function list(array $filters, int $page, int $perPage): array {
+  public function list(array $filters, int $page, int $perPage): array
+  {
     $storage = $this->entityTypeManager->getStorage('node');
     $query = $storage->getQuery()
       ->accessCheck(FALSE)
@@ -191,7 +227,8 @@ final class CandidateRepository {
     return ['items' => $items, 'total' => $total];
   }
 
-  public function normalizeNode($node): array {
+  public function normalizeNode($node): array
+  {
     // Get skills as comma-separated term labels.
     $skills = [];
     foreach ($node->get('field_competences') as $item) {
@@ -212,13 +249,14 @@ final class CandidateRepository {
       'location' => $node->get('field_localisation')->entity?->label() ?? '',
       'address' => $node->get('field_address')->value ?? NULL,
       'job_target' => $node->get('field_job_target')->value ?? NULL,
-      'skills' => implode(', ', $skills),
+      'skills' => $node->get('field_competences')->value ?? NULL,
       'experiences' => $node->get('field_experience')->value ?? NULL,
       'educations' => $node->get('field_education')->value ?? NULL,
       'certifications' => $node->get('field_certifications')->value ?? NULL,
       'languages' => $node->get('field_languages')->value ?? NULL,
       'experience_level' => $node->get('field_experience')->value ?? NULL,
       'cv_path' => $node->get('field_cv')->value ?? NULL,
+      'website' => $node->get('field_website')->uri ?? NULL,
       'photo_path' => $photoUrl,
       'phone' => $node->get('field_phone')->value ?? NULL,
       'email' => $node->get('field_email_contact')->value ?? NULL,
@@ -228,5 +266,4 @@ final class CandidateRepository {
       'updated_at' => $this->serializer->iso((int) $node->getChangedTime()),
     ];
   }
-
 }

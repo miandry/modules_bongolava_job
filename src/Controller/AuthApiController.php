@@ -62,9 +62,12 @@ final class AuthApiController extends ApiControllerBase {
   }
 
   public function logout() {
-    $token = $this->auth->extractBearerToken();
+    $token = $this->auth->extractAuthToken();
     $this->auth->revokeCurrentToken($token);
-    return $this->api->message('Logged out successfully.');
+    return $this->api->withCookie(
+      $this->api->message('Logged out successfully.'),
+      $this->auth->clearAuthCookie(),
+    );
   }
 
   public function me() {
@@ -139,12 +142,15 @@ final class AuthApiController extends ApiControllerBase {
     $profile = $role === 'recruiter'
       ? $this->recruiters->loadByUser((int) $account->id())
       : $this->candidates->loadByUser((int) $account->id());
-    return $this->api->ok([
-      'user' => $this->serializer->user($account),
-      'profile' => $profile,
-      'token' => $this->auth->issueToken($account),
-      'role' => $role,
-    ]);
+    $token = $this->auth->issueToken($account);
+    return $this->api->withCookie(
+      $this->api->ok([
+        'user' => $this->serializer->user($account),
+        'profile' => $profile,
+        'role' => $role,
+      ]),
+      $this->auth->createAuthCookie($token),
+    );
   }
 
   private function validateRegister(array $body, array $required): array {

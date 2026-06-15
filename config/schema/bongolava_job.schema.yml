@@ -21,6 +21,9 @@ bongolava_job.settings:
     token_ttl_days:
       type: integer
       label: 'Bearer token TTL (days)'
+    cookie_secure_mode:
+      type: string
+      label: 'Auth cookie Secure flag'
     jobs_per_page:
       type: integer
       label: 'Jobs per page'
