@@ -54,12 +54,37 @@ final class JobApiController extends ApiControllerBase {
       return $user;
     }
     $body = $this->jsonBody($request);
-    if (empty($body['title']) || empty($body['description']) || empty($body['location'])) {
-      return $this->api->validationError('The given data was invalid.', [
-        'title' => empty($body['title']) ? ['The title field is required.'] : [],
-      ]);
+    
+    // Validate required fields
+    $errors = [];
+    if (empty($body['title'])) {
+      $errors['title'] = ['The title field is required.'];
+    } elseif (strlen(trim($body['title'])) < 3) {
+      $errors['title'] = ['The title must be at least 3 characters.'];
     }
+    
+    if (empty($body['description'])) {
+      $errors['description'] = ['The description field is required.'];
+    } elseif (strlen(trim($body['description'])) < 10) {
+      $errors['description'] = ['The description must be at least 10 characters.'];
+    }
+    
+    if (empty($body['location'])) {
+      $errors['location'] = ['The location field is required.'];
+    }
+    
+    // Validate email if provided
+    if (!empty($body['contact_email']) && !filter_var($body['contact_email'], FILTER_VALIDATE_EMAIL)) {
+      $errors['contact_email'] = ['The contact email must be a valid email address.'];
+    }
+    
+    if (!empty($errors)) {
+      return $this->api->validationError('The given data was invalid.', $errors);
+    }
+    
+    // Set contact email to user email if not provided
     $body['contact_email'] = $body['contact_email'] ?? $user->getEmail();
+    
     return $this->api->ok($this->jobs->create((int) $user->id(), $body), 201);
   }
 
@@ -68,7 +93,29 @@ final class JobApiController extends ApiControllerBase {
     if ($user instanceof \Symfony\Component\HttpFoundation\JsonResponse) {
       return $user;
     }
-    $job = $this->jobs->update($id, (int) $user->id(), $this->jsonBody($request));
+    $body = $this->jsonBody($request);
+    
+    // Validate title if provided
+    $errors = [];
+    if (isset($body['title']) && strlen(trim($body['title'])) < 3) {
+      $errors['title'] = ['The title must be at least 3 characters.'];
+    }
+    
+    // Validate description if provided
+    if (isset($body['description']) && strlen(trim($body['description'])) < 10) {
+      $errors['description'] = ['The description must be at least 10 characters.'];
+    }
+    
+    // Validate email if provided
+    if (!empty($body['contact_email']) && !filter_var($body['contact_email'], FILTER_VALIDATE_EMAIL)) {
+      $errors['contact_email'] = ['The contact email must be a valid email address.'];
+    }
+    
+    if (!empty($errors)) {
+      return $this->api->validationError('The given data was invalid.', $errors);
+    }
+    
+    $job = $this->jobs->update($id, (int) $user->id(), $body);
     return $job ? $this->api->ok($job) : $this->api->notFound();
   }
 
@@ -82,12 +129,52 @@ final class JobApiController extends ApiControllerBase {
       : $this->api->notFound();
   }
 
-  public function myJobs() {
+  public function myJobs(Request $request) {
     $user = $this->requireAuth('recruiter');
     if ($user instanceof \Symfony\Component\HttpFoundation\JsonResponse) {
       return $user;
     }
-    return $this->api->ok($this->jobs->listByRecruiter((int) $user->id()));
+    
+    // Get all recruiter jobs
+    $allJobs = $this->jobs->listByRecruiter((int) $user->id());
+    
+    // Apply filters client-side (keyword, sector, contract_type, location)
+    $filters = $request->query->all();
+    $filtered = $allJobs;
+    
+    if (!empty($filters['keyword'])) {
+      $keyword = strtolower($filters['keyword']);
+      $filtered = array_filter($filtered, function ($job) use ($keyword) {
+        return stripos($job['title'], $keyword) !== FALSE || 
+               stripos($job['company'] ?? '', $keyword) !== FALSE;
+      });
+    }
+    
+    if (!empty($filters['sector'])) {
+      $filtered = array_filter($filtered, function ($job) use ($filters) {
+        return $job['sector'] === $filters['sector'];
+      });
+    }
+    
+    if (!empty($filters['contract_type'])) {
+      $filtered = array_filter($filtered, function ($job) use ($filters) {
+        return $job['contract_type'] === $filters['contract_type'];
+      });
+    }
+    
+    if (!empty($filters['location'])) {
+      $filtered = array_filter($filtered, function ($job) use ($filters) {
+        return $job['location'] === $filters['location'];
+      });
+    }
+
+    if (!empty($filters['offer_status'])) {
+      $filtered = array_filter($filtered, function ($job) use ($filters) {
+        return $job['status'] === $filters['offer_status'];
+      });
+    }
+    
+    return $this->api->ok(array_values($filtered));
   }
 
 }

@@ -44,8 +44,11 @@ final class CandidateApiController extends ApiControllerBase {
     }
     $page = max(1, (int) $request->query->get('page', 1));
     $perPage = max(1, (int) $this->jobConfig->get('bongolava_job.settings')->get('candidates_per_page'));
+    if ($request->query->get('per_page')) {
+      $perPage = max(1, (int) $request->query->get('per_page'));
+    }
     $result = $this->candidates->list($request->query->all(), $page, $perPage);
-    if ($request->query->has('page')) {
+    if ($request->query->has('page') || $request->query->has('per_page')) {
       return $this->api->paginated($result['items'], $result['total'], $page, $perPage);
     }
     return $this->api->ok($result['items']);

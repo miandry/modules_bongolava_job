@@ -212,6 +212,12 @@ final class CandidateRepository
         ->condition('field_job_target', '%' . $filters['keyword'] . '%', 'LIKE');
       $query->condition($orGroup);
     }
+    if (!empty($filters['location'])) {
+      $tid = $this->resolveTermId('localisation', $filters['location']);
+      if ($tid) {
+        $query->condition('field_localisation', $tid);
+      }
+    }
 
     $countQuery = clone $query;
     $total = (int) $countQuery->count()->execute();

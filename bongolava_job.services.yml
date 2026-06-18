@@ -26,6 +26,10 @@ services:
     class: Drupal\bongolava_job\Repository\JobRepository
     arguments: ['@entity_type.manager', '@bongolava_job.serializer', '@config.factory']
 
+  bongolava_job.taxonomy_repository:
+    class: Drupal\bongolava_job\Repository\TaxonomyRepository
+    arguments: ['@entity_type.manager']
+
   bongolava_job.application_repository:
     class: Drupal\bongolava_job\Repository\ApplicationRepository
     arguments: ['@entity_type.manager', '@bongolava_job.serializer']
