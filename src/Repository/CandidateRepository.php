@@ -203,7 +203,8 @@ final class CandidateRepository
     $query = $storage->getQuery()
       ->accessCheck(FALSE)
       ->condition('type', 'profil_candidat')
-      ->condition('status', 1);
+      ->condition('status', 1)
+      ->condition('field_available', 1);
 
     if (!empty($filters['keyword'])) {
       $orGroup = $query->orConditionGroup()
@@ -244,7 +245,7 @@ final class CandidateRepository
     }
 
     $photoPath = $node->get('field_photo')->value ?? NULL;
-    $photoUrl = $photoPath ? $this->serializer->storageUrl($photoPath) : NULL;
+    // $photoUrl = $photoPath ? $this->serializer->storageUrl($photoPath) : NULL;
 
     return [
       'id' => (int) $node->id(),
@@ -263,7 +264,7 @@ final class CandidateRepository
       'experience_level' => $node->get('field_experience')->value ?? NULL,
       'cv_path' => $node->get('field_cv')->value ?? NULL,
       'website' => $node->get('field_website')->uri ?? NULL,
-      'photo_path' => $photoUrl,
+      'photo_path' => $node->get('field_photo')->value ?? NULL,
       'phone' => $node->get('field_phone')->value ?? NULL,
       'email' => $node->get('field_email_contact')->value ?? NULL,
       'available' => (bool) ($node->get('field_available')->value ?? FALSE),

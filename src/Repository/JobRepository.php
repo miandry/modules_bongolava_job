@@ -73,6 +73,9 @@ final class JobRepository {
       $tid = $this->resolveTermId('localisation', $data['location']);
       $node->set('field_localisation', $tid ? ['target_id' => $tid] : NULL);
     }
+    if (isset($data['status'])) {
+      $node->set('field_status_offre', $data['status']);
+    }
   }
 
   public function create(int $recruiterId, array $data): array {
