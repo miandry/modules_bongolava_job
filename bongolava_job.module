@@ -1,0 +1,22 @@
+<?php
+
+use Drupal\Core\Form\FormStateInterface;
+
+/**
+ * Implements hook_form_alter().
+ */
+
+function bongolava_job_form_node_evenement_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  
+  $form['title']['widget'][0]['value']['#title'] = "Nom de l'événement";
+  
+  $form['title']['widget'][0]['value']['#attributes']['placeholder'] = 'Ex: Conférence IA 2026';
+  $form['field_localisation']['widget'][0]['value']['#attributes']['placeholder'] = 'Tsiroanomandidy';
+  $form['field_capacity']['widget'][0]['value']['#attributes']['placeholder'] = '250';
+  $form['field_organizer']['widget'][0]['value']['#attributes']['placeholder'] = 'PNUD';
+  $form['field_contact_phone']['widget'][0]['value']['#attributes']['placeholder'] = '034 12 345 67';
+  $form['field_contact_email']['widget'][0]['value']['#attributes']['placeholder'] = 'exempl@domaine.com';
+  $form['field_address']['widget'][0]['value']['#attributes']['placeholder'] = 'Lot II M 15 bis Antanimena';
+  $form['field_horaires']['widget'][0]['value']['#attributes']['placeholder'] = '8h30 à 16h30';
+
+}

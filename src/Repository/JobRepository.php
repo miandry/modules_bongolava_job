@@ -38,7 +38,7 @@ final class JobRepository {
       $node->set('field_salary', $data['salary']);
     }
     if (isset($data['description'])) {
-      $node->set('field_description', $data['description']);
+      $node->set('field_description_event', $data['description']);
     }
     if (isset($data['is_remote'])) {
       $node->set('field_remote', (bool) $data['is_remote']);
@@ -275,7 +275,7 @@ final class JobRepository {
       'contract_type' => $termLabel('field_type_contrat'),
       'sector' => $termLabel('field_secteur'),
       'salary' => $node->get('field_salary')->value ?? NULL,
-      'description' => $node->get('field_description')->value ?? '',
+      'description' => $node->get('field_description_event')->value ?? '',
       'is_urgent' => (bool) ($node->get('field_urgent')->value ?? FALSE),
       'is_remote' => (bool) ($node->get('field_remote')->value ?? FALSE),
       'urgent' => (bool) ($node->get('field_urgent')->value ?? FALSE),

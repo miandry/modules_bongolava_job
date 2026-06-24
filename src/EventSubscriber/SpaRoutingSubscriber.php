@@ -21,6 +21,7 @@ final class SpaRoutingSubscriber extends HttpExceptionSubscriberBase {
     'jobs',
     'profils',
     'evenements',
+    'mes-evenements',
     'contact',
     'faq',
     'mentions-legales',

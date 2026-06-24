@@ -3,6 +3,7 @@
 namespace Drupal\bongolava_job\Controller;
 
 use Drupal\bongolava_job\Repository\ApplicationRepository;
+use Drupal\bongolava_job\Repository\CandidateRepository;
 use Drupal\bongolava_job\Repository\JobRepository;
 use Drupal\bongolava_job\Service\ApiResponseFactory;
 use Drupal\bongolava_job\Service\AuthService;
@@ -20,6 +21,7 @@ final class ApplicationApiController extends ApiControllerBase {
     AuthService $auth,
     private readonly ApplicationRepository $applications,
     private readonly JobRepository $jobs,
+    private readonly CandidateRepository $candidates,
     private readonly FileUploadService $uploads,
   ) {
     parent::__construct($api, $auth);
@@ -31,6 +33,7 @@ final class ApplicationApiController extends ApiControllerBase {
       $container->get('bongolava_job.auth'),
       $container->get('bongolava_job.application_repository'),
       $container->get('bongolava_job.job_repository'),
+      $container->get('bongolava_job.candidate_repository'),
       $container->get('bongolava_job.file_upload'),
     );
   }
@@ -43,12 +46,19 @@ final class ApplicationApiController extends ApiControllerBase {
     return $this->api->ok($this->applications->listForCandidate((int) $user->id()));
   }
 
-  public function recruiterApplications() {
+  public function recruiterApplications(Request $request) {
     $user = $this->requireAuth('recruiter');
     if ($user instanceof \Symfony\Component\HttpFoundation\JsonResponse) {
       return $user;
     }
-    return $this->api->ok($this->applications->listForRecruiter((int) $user->id()));
+    $filters = $request->query->all();
+    $page = max(1, (int) $request->query->get('page', 1));
+    $perPage = max(1, (int) $request->query->get('per_page', 20));
+    $result = $this->applications->listForRecruiter((int) $user->id(), $filters, $page, $perPage);
+    if ($request->query->has('page') || $request->query->has('per_page')) {
+      return $this->api->paginated($result['items'], $result['total'], $page, $perPage);
+    }
+    return $this->api->ok($result['items']);
   }
 
   public function updateRecruiterApplication(int $id, Request $request) {
@@ -69,6 +79,15 @@ final class ApplicationApiController extends ApiControllerBase {
     if (!$job) {
       return $this->api->notFound('Job not found.');
     }
+
+    // Candidate must have a completed profile node before applying.
+    $profile = $this->candidates->loadByUser((int) $user->id());
+    if (!$profile || empty($profile['id'])) {
+      return $this->api->validationError('The given data was invalid.', [
+        'profil' => ['Veuillez compléter votre profil candidat avant de postuler.'],
+      ]);
+    }
+
     $body = $request->request->all();
     $cvPath = NULL;
     $file = $request->files->get('cv');
@@ -86,6 +105,10 @@ final class ApplicationApiController extends ApiControllerBase {
       'cover_letter' => $body['cover_letter'] ?? NULL,
       'cv_path' => $cvPath,
     ];
+
+    // Link candidature to the candidate profile node (profil_candidat) when available.
+    $data['profil_candidat_id'] = (int) $profile['id'];
+
     $created = $this->applications->create($job_id, (int) $user->id(), $data);
     $list = $this->applications->listForCandidate((int) $user->id());
     $latest = $list[0] ?? $created;

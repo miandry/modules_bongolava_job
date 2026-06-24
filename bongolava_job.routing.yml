@@ -321,6 +321,14 @@ bongolava_job.api.events_list:
   requirements:
     _access: 'TRUE'
 
+bongolava_job.api.events_my_events_list:
+  path: '/bongolava_job/my-events'
+  defaults:
+    _controller: '\Drupal\bongolava_job\Controller\EventApiController::MyEventslist'
+  methods: [GET]
+  requirements:
+    _access: 'TRUE'
+
 bongolava_job.api.events_get:
   path: '/bongolava_job/events/{id}'
   defaults:
@@ -449,12 +457,34 @@ bongolava_job.spa.profil_detail:
     _access: 'TRUE'
     id: '\d+'
 
+bongolava_job.spa.my_events:
+  path: '/mes-evenements'
+  defaults:
+    _controller: '\Drupal\bongolava_job\Controller\SpaController::shell'
+  requirements:
+    _access: 'TRUE'
+
 bongolava_job.spa.events:
   path: '/evenements'
   defaults:
     _controller: '\Drupal\bongolava_job\Controller\SpaController::shell'
   requirements:
     _access: 'TRUE'
+
+bongolava_job.spa.events_new:
+  path: '/evenements/nouveau'
+  defaults:
+    _controller: '\Drupal\bongolava_job\Controller\SpaController::shell'
+  requirements:
+    _access: 'TRUE'
+
+bongolava_job.spa.event_edit:
+  path: '/evenements/{id}/edit'
+  defaults:
+    _controller: '\Drupal\bongolava_job\Controller\SpaController::shell'
+  requirements:
+    _access: 'TRUE'
+    id: '\d+'
 
 bongolava_job.spa.event_detail:
   path: '/evenements/{id}'
