@@ -44,6 +44,9 @@ final class ApiSerializer {
     if ($account->hasRole('administrator')) {
       $role = 'admin';
     }
+    elseif ($account->hasRole('partenaire')) {
+      $role = 'partenaire';
+    }
     elseif ($account->hasRole('recruiter')) {
       $role = 'recruiter';
     }
@@ -71,6 +74,9 @@ final class ApiSerializer {
     $role = 'candidate';
     if ($user->hasRole('administrator')) {
       $role = 'admin';
+    }
+    elseif ($user->hasRole('partenaire')) {
+      $role = 'partenaire';
     }
     elseif ($user->hasRole('recruiter')) {
       $role = 'recruiter';

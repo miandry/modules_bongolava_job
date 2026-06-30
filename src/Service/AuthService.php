@@ -157,6 +157,9 @@ final class AuthService {
   public function getUserRole(int $uid): string {
     $user = $this->entityTypeManager->getStorage('user')->load($uid);
     if ($user instanceof UserInterface) {
+      if ($user->hasRole('partenaire')) {
+        return 'partenaire';
+      }
       if ($user->hasRole('recruiter')) {
         return 'recruiter';
       }

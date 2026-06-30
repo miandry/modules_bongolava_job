@@ -79,6 +79,9 @@ final class ApplicationApiController extends ApiControllerBase {
     if (!$job) {
       return $this->api->notFound('Job not found.');
     }
+    if (($job['user_type'] ?? NULL) === 'partenaire') {
+      return $this->api->forbidden('Applications are disabled for partner job offers.');
+    }
 
     // Candidate must have a completed profile node before applying.
     $profile = $this->candidates->loadByUser((int) $user->id());

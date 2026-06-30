@@ -42,7 +42,11 @@ abstract class ApiControllerBase extends ControllerBase {
     return $this->auth->authenticateByToken($this->auth->extractAuthToken());
   }
 
-  protected function requireAuth(?string $role = NULL): UserInterface|\Symfony\Component\HttpFoundation\JsonResponse {
+  /**
+   * @param string|string[]|null $role
+   *   If provided: required role(s). Admin always passes.
+   */
+  protected function requireAuth(string|array|null $role = NULL): UserInterface|\Symfony\Component\HttpFoundation\JsonResponse {
     $user = $this->bearerUser();
     if (!$user) {
       return $this->api->unauthorized();
@@ -52,7 +56,8 @@ abstract class ApiControllerBase extends ControllerBase {
     }
     if ($role !== NULL && $role !== 'admin') {
       $userRole = $this->auth->getUserRole((int) $user->id());
-      if ($userRole !== $role && !$this->auth->isAdmin($user)) {
+      $allowed = is_array($role) ? $role : [$role];
+      if (!in_array($userRole, $allowed, TRUE) && !$this->auth->isAdmin($user)) {
         return $this->api->forbidden();
       }
     }

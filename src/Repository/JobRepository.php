@@ -4,8 +4,12 @@ namespace Drupal\bongolava_job\Repository;
 
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\file\Entity\File;
+use Drupal\media\Entity\Media;
 use Drupal\node\Entity\Node;
 use Drupal\bongolava_job\Service\ApiSerializer;
+use Drupal\Core\File\FileSystemInterface;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 /**
  * Job offer repository using offre_emploi nodes.
@@ -78,7 +82,52 @@ final class JobRepository {
     }
   }
 
-  public function create(int $recruiterId, array $data): array {
+  private function attachImage(Node $node, UploadedFile $image, int $ownerId, string $alt = ''): void {
+    // Store file under public://bongolava_job/job-images and create a Media (image).
+    $config = $this->configFactory->get('bongolava_job.settings');
+    $scheme = $config->get('api.storage_scheme') ?? 'public://bongolava_job';
+    $directory = rtrim($scheme, '/') . '/job-images';
+
+    /** @var \Drupal\Core\File\FileSystemInterface $fs */
+    $fs = \Drupal::service('file_system');
+    $fs->prepareDirectory($directory, FileSystemInterface::CREATE_DIRECTORY | FileSystemInterface::MODIFY_PERMISSIONS);
+
+    $ext = strtolower((string) $image->getClientOriginalExtension());
+    $filename = uniqid('job_', TRUE) . ($ext ? '.' . $ext : '');
+    $realDir = $fs->realpath($directory);
+    $image->move($realDir, $filename);
+
+    $uri = $directory . '/' . $filename;
+    $file = File::create([
+      'uri' => $uri,
+      'uid' => $ownerId,
+      'status' => 1,
+    ]);
+    $file->setPermanent();
+    $file->save();
+
+    $media = Media::create([
+      'bundle' => 'image',
+      'name' => $node->label(),
+      'uid' => $ownerId,
+      'status' => 1,
+      'field_media_image' => [
+        'target_id' => (int) $file->id(),
+        'alt' => $alt ?: $node->label(),
+      ],
+    ]);
+    $media->save();
+
+    $node->set('field_image_offre', ['target_id' => (int) $media->id()]);
+  }
+
+  public function create(
+    int $recruiterId,
+    array $data,
+    ?UploadedFile $image = NULL,
+    string $userType = 'recruiter',
+    string $offerStatus = 'pending',
+  ): array {
     $node = Node::create([
       'type' => 'offre_emploi',
       'title' => $data['title'] ?? 'Untitled',
@@ -86,7 +135,11 @@ final class JobRepository {
       'status' => 1,
     ]);
     $this->setNodeFields($node, $data);
-    $node->set('field_status_offre', 'pending');
+    $node->set('field_status_offre', $offerStatus);
+    $node->set('field_user_type', $userType);
+    if ($image) {
+      $this->attachImage($node, $image, $recruiterId, (string) ($data['title'] ?? ''));
+    }
     $node->save();
     return $this->normalizeNode($node);
   }
@@ -246,9 +299,11 @@ final class JobRepository {
 
     $count = 0;
     foreach ($storage->loadMultiple($nids) as $node) {
-      $node->set('field_status_offre', 'expired');
-      $node->save();
-      $count++;
+      if ($node instanceof Node) {
+        $node->set('field_status_offre', 'expired');
+        $node->save();
+        $count++;
+      }
     }
     return $count;
   }
@@ -265,6 +320,28 @@ final class JobRepository {
     $status = $node->get('field_status_offre')->value;
     if (empty($status)) {
       $status = $node->isPublished() ? 'active' : 'pending';
+    }
+
+    $imageUrl = NULL;
+    try {
+      $mediaId = (int) ($node->get('field_image_offre')->target_id ?? 0);
+      if ($mediaId > 0) {
+        $media = $this->entityTypeManager->getStorage('media')->load($mediaId);
+        if ($media instanceof \Drupal\media\MediaInterface) {
+          $fid = (int) ($media->get('field_media_image')->target_id ?? 0);
+          if ($fid > 0) {
+            $file = $this->entityTypeManager->getStorage('file')->load($fid);
+            if ($file instanceof \Drupal\file\FileInterface) {
+              /** @var \Drupal\Core\File\FileUrlGeneratorInterface $gen */
+              $gen = \Drupal::service('file_url_generator');
+              $imageUrl = $gen->generateAbsoluteString($file->getFileUri());
+            }
+          }
+        }
+      }
+    }
+    catch (\Throwable) {
+      $imageUrl = NULL;
     }
 
     return [
@@ -289,6 +366,8 @@ final class JobRepository {
       'created_at' => $this->serializer->iso((int) $node->getCreatedTime()),
       'expires_at' => $node->get('field_expires_at')->value ?? NULL,
       'views_count' => (int) ($node->get('field_views_count')->value ?? 0),
+      'user_type' => $node->get('field_user_type')->value,
+      'image_url' => $imageUrl,
     ];
   }
 

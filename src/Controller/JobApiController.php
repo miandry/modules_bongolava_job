@@ -54,11 +54,15 @@ final class JobApiController extends ApiControllerBase
 
   public function createJob(Request $request)
   {
-    $user = $this->requireAuth('recruiter');
+    $user = $this->requireAuth(['recruiter', 'partenaire']);
     if ($user instanceof \Symfony\Component\HttpFoundation\JsonResponse) {
       return $user;
     }
     $body = $this->jsonBody($request);
+    if (empty($body)) {
+      // Support multipart/form-data for image upload.
+      $body = $request->request->all();
+    }
 
     // Validate required fields
     $errors = [];
@@ -90,7 +94,28 @@ final class JobApiController extends ApiControllerBase
     // Set contact email to user email if not provided
     $body['contact_email'] = $body['contact_email'] ?? $user->getEmail();
 
-    return $this->api->ok($this->jobs->create((int) $user->id(), $body), 201);
+    $role = $this->auth->getUserRole((int) $user->id());
+    $userType = $role === 'partenaire' ? 'partenaire' : 'recruiter';
+    $status = $role === 'partenaire' ? 'published' : 'pending';
+
+    $image = $request->files->get('image');
+    if ($image) {
+      // Validate image size (<= 5MB) and extension.
+      $maxBytes = 5 * 1024 * 1024;
+      if ($image->getSize() !== NULL && (int) $image->getSize() > $maxBytes) {
+        $errors['image'] = ['Image must be smaller than 5MB.'];
+      }
+      $ext = strtolower((string) $image->getClientOriginalExtension());
+      $allowedExt = ['jpg', 'jpeg', 'png', 'webp', 'gif'];
+      if ($ext === '' || !in_array($ext, $allowedExt, TRUE)) {
+        $errors['image'] = array_merge($errors['image'] ?? [], ['Invalid image format. Allowed: jpg, jpeg, png, webp, gif.']);
+      }
+    }
+    if (!empty($errors)) {
+      return $this->api->validationError('The given data was invalid.', $errors);
+    }
+
+    return $this->api->ok($this->jobs->create((int) $user->id(), $body, $image, $userType, $status), 201);
   }
 
   public function update(int $id, Request $request)
@@ -160,7 +185,7 @@ final class JobApiController extends ApiControllerBase
 
   public function myJobs(Request $request)
   {
-    $user = $this->requireAuth('recruiter');
+    $user = $this->requireAuth(['recruiter', 'partenaire']);
     if ($user instanceof \Symfony\Component\HttpFoundation\JsonResponse) {
       return $user;
     }
